@@ -23,7 +23,7 @@ A Django-based Healthcare Management System with four apps:
 ### 📥 1. Clone the Repository
 
 ```bash
-git clone <your-repo-url>
+git clone https://github.com/upandey0/wh-by
 cd healthcare_project
 ## On Windows : 
 python -m venv healthcare_env
