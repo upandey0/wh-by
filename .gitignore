@@ -1,0 +1,28 @@
+# Python
+*.pyc
+__pycache__/
+*.pyo
+*.pyd
+*.swp
+
+# Virtual environment
+healthcare_env/
+
+# Django migrations
+**/migrations/
+!**/migrations/__init__.py
+
+# Environment variables
+.env
+
+# Database
+*.sqlite3
+
+# IDE / editor settings
+.vscode/
+.idea/
+
+# OS generated
+.DS_Store
+Thumbs.db
+

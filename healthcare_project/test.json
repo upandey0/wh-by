@@ -1,0 +1,1538 @@
+{
+    "info": {
+      "name": "Healthcare API Tests",
+      "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+    },
+    "item": [
+      {
+        "name": "Authentication",
+        "item": [
+          {
+            "name": "Register - Valid User",
+            "request": {
+              "method": "POST",
+              "url": "{{base_url}}/api/auth/register/",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": {
+                "mode": "raw",
+                "raw": "{\n    \"username\": \"testuser1\",\n    \"email\": \"testuser1@example.com\",\n    \"password\": \"Test@12345\",\n    \"password2\": \"Test@12345\",\n    \"first_name\": \"Test\",\n    \"last_name\": \"User\"\n}"
+              }
+            },
+            "event": [
+              {
+                "listen": "test",
+                "script": {
+                  "exec": [
+                    "pm.test('Status code is 201', function() {",
+                    "    pm.response.to.have.status(201);",
+                    "});",
+                    "",
+                    "pm.test('Response has user data', function() {",
+                    "    var jsonData = pm.response.json();",
+                    "    pm.expect(jsonData).to.have.property('user');",
+                    "    pm.expect(jsonData.user).to.have.property('username');",
+                    "    pm.expect(jsonData.user.username).to.eql('testuser1');",
+                    "    pm.expect(jsonData).to.have.property('message');",
+                    "    pm.expect(jsonData.message).to.eql('User created successfully');",
+                    "});"
+                  ],
+                  "type": "text/javascript"
+                }
+              }
+            ]
+          },
+          {
+            "name": "Register - Duplicate Username",
+            "request": {
+              "method": "POST",
+              "url": "{{base_url}}/api/auth/register/",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": {
+                "mode": "raw",
+                "raw": "{\n    \"username\": \"testuser1\",\n    \"email\": \"another@example.com\",\n    \"password\": \"Test@12345\",\n    \"password2\": \"Test@12345\",\n    \"first_name\": \"Test\",\n    \"last_name\": \"User\"\n}"
+              }
+            },
+            "event": [
+              {
+                "listen": "test",
+                "script": {
+                  "exec": [
+                    "pm.test('Status code is 400', function() {",
+                    "    pm.response.to.have.status(400);",
+                    "});",
+                    "",
+                    "pm.test('Error message about duplicate username', function() {",
+                    "    var jsonData = pm.response.json();",
+                    "    pm.expect(jsonData).to.have.property('username');",
+                    "});"
+                  ],
+                  "type": "text/javascript"
+                }
+              }
+            ]
+          },
+          {
+            "name": "Register - Password Mismatch",
+            "request": {
+              "method": "POST",
+              "url": "{{base_url}}/api/auth/register/",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": {
+                "mode": "raw",
+                "raw": "{\n    \"username\": \"testuser2\",\n    \"email\": \"testuser2@example.com\",\n    \"password\": \"Test@12345\",\n    \"password2\": \"Test@12346\",\n    \"first_name\": \"Test\",\n    \"last_name\": \"User\"\n}"
+              }
+            },
+            "event": [
+              {
+                "listen": "test",
+                "script": {
+                  "exec": [
+                    "pm.test('Status code is 400', function() {",
+                    "    pm.response.to.have.status(400);",
+                    "});",
+                    "",
+                    "pm.test('Error message about password mismatch', function() {",
+                    "    var jsonData = pm.response.json();",
+                    "    pm.expect(jsonData).to.have.property('password');",
+                    "});"
+                  ],
+                  "type": "text/javascript"
+                }
+              }
+            ]
+          },
+          {
+            "name": "Register - Missing Required Fields",
+            "request": {
+              "method": "POST",
+              "url": "{{base_url}}/api/auth/register/",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": {
+                "mode": "raw",
+                "raw": "{\n    \"username\": \"testuser3\",\n    \"password\": \"Test@12345\",\n    \"password2\": \"Test@12345\"\n}"
+              }
+            },
+            "event": [
+              {
+                "listen": "test",
+                "script": {
+                  "exec": [
+                    "pm.test('Status code is 400', function() {",
+                    "    pm.response.to.have.status(400);",
+                    "});",
+                    "",
+                    "pm.test('Error message about missing fields', function() {",
+                    "    var jsonData = pm.response.json();",
+                    "    pm.expect(jsonData).to.have.any.keys('email', 'first_name', 'last_name');",
+                    "});"
+                  ],
+                  "type": "text/javascript"
+                }
+              }
+            ]
+          },
+          {
+            "name": "Login - Valid Credentials",
+            "request": {
+              "method": "POST",
+              "url": "{{base_url}}/api/auth/login/",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": {
+                "mode": "raw",
+                "raw": "{\n    \"username\": \"testuser1\",\n    \"password\": \"Test@12345\"\n}"
+              }
+            },
+            "event": [
+              {
+                "listen": "test",
+                "script": {
+                  "exec": [
+                    "pm.test('Status code is 200', function() {",
+                    "    pm.response.to.have.status(200);",
+                    "});",
+                    "",
+                    "pm.test('Response has tokens', function() {",
+                    "    var jsonData = pm.response.json();",
+                    "    pm.expect(jsonData).to.have.property('access');",
+                    "    pm.expect(jsonData).to.have.property('refresh');",
+                    "    ",
+                    "    // Store the tokens for other requests",
+                    "    pm.environment.set('auth_token', jsonData.access);",
+                    "    pm.environment.set('refresh_token', jsonData.refresh);",
+                    "});"
+                  ],
+                  "type": "text/javascript"
+                }
+              }
+            ]
+          },
+          {
+            "name": "Login - Invalid Credentials",
+            "request": {
+              "method": "POST",
+              "url": "{{base_url}}/api/auth/login/",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": {
+                "mode": "raw",
+                "raw": "{\n    \"username\": \"testuser1\",\n    \"password\": \"WrongPassword\"\n}"
+              }
+            },
+            "event": [
+              {
+                "listen": "test",
+                "script": {
+                  "exec": [
+                    "pm.test('Status code is 401', function() {",
+                    "    pm.response.to.have.status(401);",
+                    "});",
+                    "",
+                    "pm.test('Error message about invalid credentials', function() {",
+                    "    var jsonData = pm.response.json();",
+                    "    pm.expect(jsonData).to.have.property('detail');",
+                    "});"
+                  ],
+                  "type": "text/javascript"
+                }
+              }
+            ]
+          },
+          {
+            "name": "Token Refresh",
+            "request": {
+              "method": "POST",
+              "url": "{{base_url}}/api/auth/token/refresh/",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": {
+                "mode": "raw",
+                "raw": "{\n    \"refresh\": \"{{refresh_token}}\"\n}"
+              }
+            },
+            "event": [
+              {
+                "listen": "test",
+                "script": {
+                  "exec": [
+                    "pm.test('Status code is 200', function() {",
+                    "    pm.response.to.have.status(200);",
+                    "});",
+                    "",
+                    "pm.test('Response has new access token', function() {",
+                    "    var jsonData = pm.response.json();",
+                    "    pm.expect(jsonData).to.have.property('access');",
+                    "});"
+                  ],
+                  "type": "text/javascript"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "name": "Patients",
+        "item": [
+          {
+            "name": "Create Patient - Valid Data",
+            "request": {
+              "method": "POST",
+              "url": "{{base_url}}/api/patients/",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                },
+                {
+                  "key": "Authorization",
+                  "value": "Bearer {{auth_token}}"
+                }
+              ],
+              "body": {
+                "mode": "raw",
+                "raw": "{\n    \"first_name\": \"John\",\n    \"last_name\": \"Doe\",\n    \"date_of_birth\": \"1990-01-01\",\n    \"gender\": \"M\",\n    \"contact_number\": \"+1234567890\",\n    \"email\": \"johndoe@example.com\",\n    \"address\": \"123 Main St, City\",\n    \"medical_history\": \"No known medical conditions\"\n}"
+              }
+            },
+            "event": [
+              {
+                "listen": "test",
+                "script": {
+                  "exec": [
+                    "pm.test('Status code is 201', function() {",
+                    "    pm.response.to.have.status(201);",
+                    "});",
+                    "",
+                    "pm.test('Patient created with correct data', function() {",
+                    "    var jsonData = pm.response.json();",
+                    "    pm.expect(jsonData).to.have.property('id');",
+                    "    pm.expect(jsonData.first_name).to.eql('John');",
+                    "    pm.expect(jsonData.last_name).to.eql('Doe');",
+                    "    pm.expect(jsonData.gender).to.eql('M');",
+                    "    ",
+                    "    // Store patient ID for later use",
+                    "    pm.environment.set('patient_id', jsonData.id);",
+                    "});"
+                  ],
+                  "type": "text/javascript"
+                }
+              }
+            ]
+          },
+          {
+            "name": "Create Patient - Invalid Data (Missing Required Fields)",
+            "request": {
+              "method": "POST",
+              "url": "{{base_url}}/api/patients/",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                },
+                {
+                  "key": "Authorization",
+                  "value": "Bearer {{auth_token}}"
+                }
+              ],
+              "body": {
+                "mode": "raw",
+                "raw": "{\n    \"first_name\": \"Jane\",\n    \"last_name\": \"Doe\"\n}"
+              }
+            },
+            "event": [
+              {
+                "listen": "test",
+                "script": {
+                  "exec": [
+                    "pm.test('Status code is 400', function() {",
+                    "    pm.response.to.have.status(400);",
+                    "});",
+                    "",
+                    "pm.test('Error message about missing fields', function() {",
+                    "    var jsonData = pm.response.json();",
+                    "    pm.expect(jsonData).to.have.any.keys('date_of_birth', 'gender', 'contact_number', 'address');",
+                    "});"
+                  ],
+                  "type": "text/javascript"
+                }
+              }
+            ]
+          },
+          {
+            "name": "Create Patient - Invalid Gender Value",
+            "request": {
+              "method": "POST",
+              "url": "{{base_url}}/api/patients/",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                },
+                {
+                  "key": "Authorization",
+                  "value": "Bearer {{auth_token}}"
+                }
+              ],
+              "body": {
+                "mode": "raw",
+                "raw": "{\n    \"first_name\": \"Alex\",\n    \"last_name\": \"Smith\",\n    \"date_of_birth\": \"1985-03-15\",\n    \"gender\": \"X\",\n    \"contact_number\": \"+1234567890\",\n    \"email\": \"alex@example.com\",\n    \"address\": \"456 Elm St, City\"\n}"
+              }
+            },
+            "event": [
+              {
+                "listen": "test",
+                "script": {
+                  "exec": [
+                    "pm.test('Status code is 400', function() {",
+                    "    pm.response.to.have.status(400);",
+                    "});",
+                    "",
+                    "pm.test('Error message about invalid gender value', function() {",
+                    "    var jsonData = pm.response.json();",
+                    "    pm.expect(jsonData).to.have.property('gender');",
+                    "});"
+                  ],
+                  "type": "text/javascript"
+                }
+              }
+            ]
+          },
+          {
+            "name": "Get All Patients",
+            "request": {
+              "method": "GET",
+              "url": "{{base_url}}/api/patients/",
+              "header": [
+                {
+                  "key": "Authorization",
+                  "value": "Bearer {{auth_token}}"
+                }
+              ]
+            },
+            "event": [
+              {
+                "listen": "test",
+                "script": {
+                  "exec": [
+                    "pm.test('Status code is 200', function() {",
+                    "    pm.response.to.have.status(200);",
+                    "});",
+                    "",
+                    "pm.test('Response is an array', function() {",
+                    "    var jsonData = pm.response.json();",
+                    "    pm.expect(jsonData).to.be.an('array');",
+                    "    pm.expect(jsonData.length).to.be.at.least(1);",
+                    "});"
+                  ],
+                  "type": "text/javascript"
+                }
+              }
+            ]
+          },
+          {
+            "name": "Get Specific Patient",
+            "request": {
+              "method": "GET",
+              "url": "{{base_url}}/api/patients/{{patient_id}}/",
+              "header": [
+                {
+                  "key": "Authorization",
+                  "value": "Bearer {{auth_token}}"
+                }
+              ]
+            },
+            "event": [
+              {
+                "listen": "test",
+                "script": {
+                  "exec": [
+                    "pm.test('Status code is 200', function() {",
+                    "    pm.response.to.have.status(200);",
+                    "});",
+                    "",
+                    "pm.test('Patient data is correct', function() {",
+                    "    var jsonData = pm.response.json();",
+                    "    pm.expect(jsonData.id).to.eql(parseInt(pm.environment.get('patient_id')));",
+                    "    pm.expect(jsonData.first_name).to.eql('John');",
+                    "    pm.expect(jsonData.last_name).to.eql('Doe');",
+                    "});"
+                  ],
+                  "type": "text/javascript"
+                }
+              }
+            ]
+          },
+          {
+            "name": "Get Non-existent Patient",
+            "request": {
+              "method": "GET",
+              "url": "{{base_url}}/api/patients/9999/",
+              "header": [
+                {
+                  "key": "Authorization",
+                  "value": "Bearer {{auth_token}}"
+                }
+              ]
+            },
+            "event": [
+              {
+                "listen": "test",
+                "script": {
+                  "exec": [
+                    "pm.test('Status code is 404', function() {",
+                    "    pm.response.to.have.status(404);",
+                    "});",
+                    "",
+                    "pm.test('Error message about patient not found', function() {",
+                    "    var jsonData = pm.response.json();",
+                    "    pm.expect(jsonData).to.have.property('detail');",
+                    "});"
+                  ],
+                  "type": "text/javascript"
+                }
+              }
+            ]
+          },
+          {
+            "name": "Update Patient",
+            "request": {
+              "method": "PUT",
+              "url": "{{base_url}}/api/patients/{{patient_id}}/",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                },
+                {
+                  "key": "Authorization",
+                  "value": "Bearer {{auth_token}}"
+                }
+              ],
+              "body": {
+                "mode": "raw",
+                "raw": "{\n    \"first_name\": \"John\",\n    \"last_name\": \"Doe\",\n    \"date_of_birth\": \"1990-01-01\",\n    \"gender\": \"M\",\n    \"contact_number\": \"+9876543210\",\n    \"email\": \"johndoe@example.com\",\n    \"address\": \"123 Main St, City\",\n    \"medical_history\": \"Updated medical history with allergies\"\n}"
+              }
+            },
+            "event": [
+              {
+                "listen": "test",
+                "script": {
+                  "exec": [
+                    "pm.test('Status code is 200', function() {",
+                    "    pm.response.to.have.status(200);",
+                    "});",
+                    "",
+                    "pm.test('Patient updated with correct data', function() {",
+                    "    var jsonData = pm.response.json();",
+                    "    pm.expect(jsonData.id).to.eql(parseInt(pm.environment.get('patient_id')));",
+                    "    pm.expect(jsonData.contact_number).to.eql('+9876543210');",
+                    "    pm.expect(jsonData.medical_history).to.eql('Updated medical history with allergies');",
+                    "});"
+                  ],
+                  "type": "text/javascript"
+                }
+              }
+            ]
+          },
+          {
+            "name": "Delete Patient",
+            "request": {
+              "method": "DELETE",
+              "url": "{{base_url}}/api/patients/{{patient_id}}/",
+              "header": [
+                {
+                  "key": "Authorization",
+                  "value": "Bearer {{auth_token}}"
+                }
+              ]
+            },
+            "event": [
+              {
+                "listen": "test",
+                "script": {
+                  "exec": [
+                    "pm.test('Status code is 204', function() {",
+                    "    pm.response.to.have.status(204);",
+                    "});",
+                    "",
+                    "// Create a new patient for the next tests",
+                    "pm.sendRequest({",
+                    "    url: pm.environment.get('base_url') + '/api/patients/',",
+                    "    method: 'POST',",
+                    "    header: {",
+                    "        'Content-Type': 'application/json',",
+                    "        'Authorization': 'Bearer ' + pm.environment.get('auth_token')",
+                    "    },",
+                    "    body: {",
+                    "        mode: 'raw',",
+                    "        raw: JSON.stringify({",
+                    "            first_name: 'Patient',",
+                    "            last_name: 'ForTests',",
+                    "            date_of_birth: '1995-05-15',",
+                    "            gender: 'F',",
+                    "            contact_number: '+1122334455',",
+                    "            email: 'patient@example.com',",
+                    "            address: '789 Oak St, City'",
+                    "        })",
+                    "    }",
+                    "}, function (err, res) {",
+                    "    if (!err) {",
+                    "        pm.environment.set('patient_id', res.json().id);",
+                    "    }",
+                    "});"
+                  ],
+                  "type": "text/javascript"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "name": "Doctors",
+        "item": [
+          {
+            "name": "Create Doctor - Valid Data",
+            "request": {
+              "method": "POST",
+              "url": "{{base_url}}/api/doctors/",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                },
+                {
+                  "key": "Authorization",
+                  "value": "Bearer {{auth_token}}"
+                }
+              ],
+              "body": {
+                "mode": "raw",
+                "raw": "{\n    \"first_name\": \"Sarah\",\n    \"last_name\": \"Johnson\",\n    \"specialization\": \"Cardiology\",\n    \"license_number\": \"MED12345\",\n    \"contact_number\": \"+1234567890\",\n    \"email\": \"sarah.johnson@hospital.com\",\n    \"address\": \"456 Hospital Ave, City\",\n    \"years_of_experience\": 10\n}"
+              }
+            },
+            "event": [
+              {
+                "listen": "test",
+                "script": {
+                  "exec": [
+                    "pm.test('Status code is 201', function() {",
+                    "    pm.response.to.have.status(201);",
+                    "});",
+                    "",
+                    "pm.test('Doctor created with correct data', function() {",
+                    "    var jsonData = pm.response.json();",
+                    "    pm.expect(jsonData).to.have.property('id');",
+                    "    pm.expect(jsonData.first_name).to.eql('Sarah');",
+                    "    pm.expect(jsonData.last_name).to.eql('Johnson');",
+                    "    pm.expect(jsonData.specialization).to.eql('Cardiology');",
+                    "    ",
+                    "    // Store doctor ID for later use",
+                    "    pm.environment.set('doctor_id', jsonData.id);",
+                    "});"
+                  ],
+                  "type": "text/javascript"
+                }
+              }
+            ]
+          },
+          {
+            "name": "Create Doctor - Invalid Data (Missing Required Fields)",
+            "request": {
+              "method": "POST",
+              "url": "{{base_url}}/api/doctors/",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                },
+                {
+                  "key": "Authorization",
+                  "value": "Bearer {{auth_token}}"
+                }
+              ],
+              "body": {
+                "mode": "raw",
+                "raw": "{\n    \"first_name\": \"Mark\",\n    \"last_name\": \"Wilson\"\n}"
+              }
+            },
+            "event": [
+              {
+                "listen": "test",
+                "script": {
+                  "exec": [
+                    "pm.test('Status code is 400', function() {",
+                    "    pm.response.to.have.status(400);",
+                    "});",
+                    "",
+                    "pm.test('Error message about missing fields', function() {",
+                    "    var jsonData = pm.response.json();",
+                    "    pm.expect(jsonData).to.have.any.keys('specialization', 'license_number', 'contact_number', 'email', 'address', 'years_of_experience');",
+                    "});"
+                  ],
+                  "type": "text/javascript"
+                }
+              }
+            ]
+          },
+          {
+            "name": "Create Doctor - Duplicate License Number",
+            "request": {
+              "method": "POST",
+              "url": "{{base_url}}/api/doctors/",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                },
+                {
+                  "key": "Authorization",
+                  "value": "Bearer {{auth_token}}"
+                }
+              ],
+              "body": {
+                "mode": "raw",
+                "raw": "{\n    \"first_name\": \"Another\",\n    \"last_name\": \"Doctor\",\n    \"specialization\": \"Neurology\",\n    \"license_number\": \"MED12345\",\n    \"contact_number\": \"+0987654321\",\n    \"email\": \"another.doctor@hospital.com\",\n    \"address\": \"789 Hospital Blvd, City\",\n    \"years_of_experience\": 5\n}"
+              }
+            },
+            "event": [
+              {
+                "listen": "test",
+                "script": {
+                  "exec": [
+                    "pm.test('Status code is 400', function() {",
+                    "    pm.response.to.have.status(400);",
+                    "});",
+                    "",
+                    "pm.test('Error message about duplicate license', function() {",
+                    "    var jsonData = pm.response.json();",
+                    "    pm.expect(jsonData).to.have.property('license_number');",
+                    "});"
+                  ],
+                  "type": "text/javascript"
+                }
+              }
+            ]
+          },
+          {
+            "name": "Get All Doctors",
+            "request": {
+              "method": "GET",
+              "url": "{{base_url}}/api/doctors/",
+              "header": [
+                {
+                  "key": "Authorization",
+                  "value": "Bearer {{auth_token}}"
+                }
+              ]
+            },
+            "event": [
+              {
+                "listen": "test",
+                "script": {
+                  "exec": [
+                    "pm.test('Status code is 200', function() {",
+                    "    pm.response.to.have.status(200);",
+                    "});",
+                    "",
+                    "pm.test('Response is an array', function() {",
+                    "    var jsonData = pm.response.json();",
+                    "    pm.expect(jsonData).to.be.an('array');",
+                    "    pm.expect(jsonData.length).to.be.at.least(1);",
+                    "});"
+                  ],
+                  "type": "text/javascript"
+                }
+              }
+            ]
+          },
+          {
+            "name": "Get Specific Doctor",
+            "request": {
+              "method": "GET",
+              "url": "{{base_url}}/api/doctors/{{doctor_id}}/",
+              "header": [
+                {
+                  "key": "Authorization",
+                  "value": "Bearer {{auth_token}}"
+                }
+              ]
+            },
+            "event": [
+              {
+                "listen": "test",
+                "script": {
+                  "exec": [
+                    "pm.test('Status code is 200', function() {",
+                    "    pm.response.to.have.status(200);",
+                    "});",
+                    "",
+                    "pm.test('Doctor data is correct', function() {",
+                    "    var jsonData = pm.response.json();",
+                    "    pm.expect(jsonData.id).to.eql(parseInt(pm.environment.get('doctor_id')));",
+                    "    pm.expect(jsonData.first_name).to.eql('Sarah');",
+                    "    pm.expect(jsonData.last_name).to.eql('Johnson');",
+                    "    pm.expect(jsonData.specialization).to.eql('Cardiology');",
+                    "});"
+                  ],
+                  "type": "text/javascript"
+                }
+              }
+            ]
+          },
+          {
+            "name": "Get Non-existent Doctor",
+            "request": {
+              "method": "GET",
+              "url": "{{base_url}}/api/doctors/9999/",
+              "header": [
+                {
+                  "key": "Authorization",
+                  "value": "Bearer {{auth_token}}"
+                }
+              ]
+            },
+            "event": [
+              {
+                "listen": "test",
+                "script": {
+                  "exec": [
+                    "pm.test('Status code is 404', function() {",
+                    "    pm.response.to.have.status(404);",
+                    "});",
+                    "",
+                    "pm.test('Error message about doctor not found', function() {",
+                    "    var jsonData = pm.response.json();",
+                    "    pm.expect(jsonData).to.have.property('detail');",
+                    "});"
+                  ],
+                  "type": "text/javascript"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "name": "Doctors - Continued",
+        "item": [
+          {
+            "name": "Update Doctor",
+            "request": {
+              "method": "PUT",
+              "url": "{{base_url}}/api/doctors/{{doctor_id}}/",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                },
+                {
+                  "key": "Authorization",
+                  "value": "Bearer {{auth_token}}"
+                }
+              ],
+              "body": {
+                "mode": "raw",
+                "raw": "{\n    \"first_name\": \"Sarah\",\n    \"last_name\": \"Johnson\",\n    \"specialization\": \"Cardiology and Vascular Medicine\",\n    \"license_number\": \"MED12345\",\n    \"contact_number\": \"+1234567890\",\n    \"email\": \"sarah.johnson@hospital.com\",\n    \"address\": \"456 Hospital Ave, City\",\n    \"years_of_experience\": 12\n}"
+              }
+            },
+            "event": [
+              {
+                "listen": "test",
+                "script": {
+                  "exec": [
+                    "pm.test('Status code is 200', function() {",
+                    "    pm.response.to.have.status(200);",
+                    "});",
+                    "",
+                    "pm.test('Doctor updated with correct data', function() {",
+                    "    var jsonData = pm.response.json();",
+                    "    pm.expect(jsonData.id).to.eql(parseInt(pm.environment.get('doctor_id')));",
+                    "    pm.expect(jsonData.specialization).to.eql('Cardiology and Vascular Medicine');",
+                    "    pm.expect(jsonData.years_of_experience).to.eql(12);",
+                    "});"
+                  ],
+                  "type": "text/javascript"
+                }
+              }
+            ]
+          },
+          {
+            "name": "Update Doctor - Invalid Data",
+            "request": {
+              "method": "PUT",
+              "url": "{{base_url}}/api/doctors/{{doctor_id}}/",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                },
+                {
+                  "key": "Authorization",
+                  "value": "Bearer {{auth_token}}"
+                }
+              ],
+              "body": {
+                "mode": "raw",
+                "raw": "{\n    \"first_name\": \"Sarah\",\n    \"last_name\": \"Johnson\",\n    \"specialization\": \"Cardiology\",\n    \"license_number\": \"MED12345\",\n    \"contact_number\": \"invalid-phone-number\",\n    \"email\": \"not-an-email\",\n    \"address\": \"456 Hospital Ave, City\",\n    \"years_of_experience\": \"not-a-number\"\n}"
+              }
+            },
+            "event": [
+              {
+                "listen": "test",
+                "script": {
+                  "exec": [
+                    "pm.test('Status code is 400', function() {",
+                    "    pm.response.to.have.status(400);",
+                    "});",
+                    "",
+                    "pm.test('Error messages for invalid data', function() {",
+                    "    var jsonData = pm.response.json();",
+                    "    pm.expect(jsonData).to.have.any.keys('contact_number', 'email', 'years_of_experience');",
+                    "});"
+                  ],
+                  "type": "text/javascript"
+                }
+              }
+            ]
+          },
+          {
+            "name": "Delete Doctor",
+            "request": {
+              "method": "DELETE",
+              "url": "{{base_url}}/api/doctors/{{doctor_id}}/",
+              "header": [
+                {
+                  "key": "Authorization",
+                  "value": "Bearer {{auth_token}}"
+                }
+              ]
+            },
+            "event": [
+              {
+                "listen": "test",
+                "script": {
+                  "exec": [
+                    "pm.test('Status code is 204', function() {",
+                    "    pm.response.to.have.status(204);",
+                    "});",
+                    "",
+                    "// Create a new doctor for the next tests",
+                    "pm.sendRequest({",
+                    "    url: pm.environment.get('base_url') + '/api/doctors/',",
+                    "    method: 'POST',",
+                    "    header: {",
+                    "        'Content-Type': 'application/json',",
+                    "        'Authorization': 'Bearer ' + pm.environment.get('auth_token')",
+                    "    },",
+                    "    body: {",
+                    "        mode: 'raw',",
+                    "        raw: JSON.stringify({",
+                    "            first_name: 'Michael',",
+                    "            last_name: 'Chen',",
+                    "            specialization: 'Neurology',",
+                    "            license_number: 'MED67890',",
+                    "            contact_number: '+9876543210',",
+                    "            email: 'michael.chen@hospital.com',",
+                    "            address: '789 Medical Center Dr, City',",
+                    "            years_of_experience: 8",
+                    "        })",
+                    "    }",
+                    "}, function (err, res) {",
+                    "    if (!err) {",
+                    "        pm.environment.set('doctor_id', res.json().id);",
+                    "    }",
+                    "});"
+                  ],
+                  "type": "text/javascript"
+                }
+              }
+            ]
+          },
+          {
+            "name": "Delete Non-existent Doctor",
+            "request": {
+              "method": "DELETE",
+              "url": "{{base_url}}/api/doctors/9999/",
+              "header": [
+                {
+                  "key": "Authorization",
+                  "value": "Bearer {{auth_token}}"
+                }
+              ]
+            },
+            "event": [
+              {
+                "listen": "test",
+                "script": {
+                  "exec": [
+                    "pm.test('Status code is 404', function() {",
+                    "    pm.response.to.have.status(404);",
+                    "});",
+                    "",
+                    "pm.test('Error message about doctor not found', function() {",
+                    "    var jsonData = pm.response.json();",
+                    "    pm.expect(jsonData).to.have.property('detail');",
+                    "});"
+                  ],
+                  "type": "text/javascript"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "name": "Patient-Doctor Mappings",
+        "item": [
+          {
+            "name": "Create Mapping - Valid Data",
+            "request": {
+              "method": "POST",
+              "url": "{{base_url}}/api/mappings/",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                },
+                {
+                  "key": "Authorization",
+                  "value": "Bearer {{auth_token}}"
+                }
+              ],
+              "body": {
+                "mode": "raw",
+                "raw": "{\n    \"patient_id\": {{patient_id}},\n    \"doctor_id\": {{doctor_id}},\n    \"notes\": \"Regular check-up appointment\"\n}"
+              }
+            },
+            "event": [
+              {
+                "listen": "test",
+                "script": {
+                  "exec": [
+                    "pm.test('Status code is 201', function() {",
+                    "    pm.response.to.have.status(201);",
+                    "});",
+                    "",
+                    "pm.test('Mapping created with correct data', function() {",
+                    "    var jsonData = pm.response.json();",
+                    "    pm.expect(jsonData).to.have.property('id');",
+                    "    pm.expect(jsonData.patient_id).to.eql(parseInt(pm.environment.get('patient_id')));",
+                    "    pm.expect(jsonData.doctor_id).to.eql(parseInt(pm.environment.get('doctor_id')));",
+                    "    ",
+                    "    // Store mapping ID for later use",
+                    "    pm.environment.set('mapping_id', jsonData.id);",
+                    "});"
+                  ],
+                  "type": "text/javascript"
+                }
+              }
+            ]
+          },
+          {
+            "name": "Create Mapping - Invalid Patient ID",
+            "request": {
+              "method": "POST",
+              "url": "{{base_url}}/api/mappings/",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                },
+                {
+                  "key": "Authorization",
+                  "value": "Bearer {{auth_token}}"
+                }
+              ],
+              "body": {
+                "mode": "raw",
+                "raw": "{\n    \"patient_id\": 9999,\n    \"doctor_id\": {{doctor_id}},\n    \"notes\": \"Regular check-up appointment\"\n}"
+              }
+            },
+            "event": [
+              {
+                "listen": "test",
+                "script": {
+                  "exec": [
+                    "pm.test('Status code is 400', function() {",
+                    "    pm.response.to.have.status(400);",
+                    "});",
+                    "",
+                    "pm.test('Error message about invalid patient ID', function() {",
+                    "    var jsonData = pm.response.json();",
+                    "    pm.expect(jsonData).to.have.property('patient_id');",
+                    "});"
+                  ],
+                  "type": "text/javascript"
+                }
+              }
+            ]
+          },
+          {
+            "name": "Create Mapping - Invalid Doctor ID",
+            "request": {
+              "method": "POST",
+              "url": "{{base_url}}/api/mappings/",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                },
+                {
+                  "key": "Authorization",
+                  "value": "Bearer {{auth_token}}"
+                }
+              ],
+              "body": {
+                "mode": "raw",
+                "raw": "{\n    \"patient_id\": {{patient_id}},\n    \"doctor_id\": 9999,\n    \"notes\": \"Regular check-up appointment\"\n}"
+              }
+            },
+            "event": [
+              {
+                "listen": "test",
+                "script": {
+                  "exec": [
+                    "pm.test('Status code is 400', function() {",
+                    "    pm.response.to.have.status(400);",
+                    "});",
+                    "",
+                    "pm.test('Error message about invalid doctor ID', function() {",
+                    "    var jsonData = pm.response.json();",
+                    "    pm.expect(jsonData).to.have.property('doctor_id');",
+                    "});"
+                  ],
+                  "type": "text/javascript"
+                }
+              }
+            ]
+          },
+          {
+            "name": "Create Duplicate Mapping",
+            "request": {
+              "method": "POST",
+              "url": "{{base_url}}/api/mappings/",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                },
+                {
+                  "key": "Authorization",
+                  "value": "Bearer {{auth_token}}"
+                }
+              ],
+              "body": {
+                "mode": "raw",
+                "raw": "{\n    \"patient_id\": {{patient_id}},\n    \"doctor_id\": {{doctor_id}},\n    \"notes\": \"Trying to create duplicate mapping\"\n}"
+              }
+            },
+            "event": [
+              {
+                "listen": "test",
+                "script": {
+                  "exec": [
+                    "pm.test('Status code is 400', function() {",
+                    "    pm.response.to.have.status(400);",
+                    "});",
+                    "",
+                    "pm.test('Error message about duplicate mapping', function() {",
+                    "    var jsonData = pm.response.json();",
+                    "    pm.expect(jsonData).to.have.property('non_field_errors');",
+                    "});"
+                  ],
+                  "type": "text/javascript"
+                }
+              }
+            ]
+          },
+          {
+            "name": "Get All Mappings",
+            "request": {
+              "method": "GET",
+              "url": "{{base_url}}/api/mappings/",
+              "header": [
+                {
+                  "key": "Authorization",
+                  "value": "Bearer {{auth_token}}"
+                }
+              ]
+            },
+            "event": [
+              {
+                "listen": "test",
+                "script": {
+                  "exec": [
+                    "pm.test('Status code is 200', function() {",
+                    "    pm.response.to.have.status(200);",
+                    "});",
+                    "",
+                    "pm.test('Response is an array', function() {",
+                    "    var jsonData = pm.response.json();",
+                    "    pm.expect(jsonData).to.be.an('array');",
+                    "    pm.expect(jsonData.length).to.be.at.least(1);",
+                    "});"
+                  ],
+                  "type": "text/javascript"
+                }
+              }
+            ]
+          },
+          {
+            "name": "Get Mappings for Specific Patient",
+            "request": {
+              "method": "GET",
+              "url": "{{base_url}}/api/mappings/patient/{{patient_id}}/",
+              "header": [
+                {
+                  "key": "Authorization",
+                  "value": "Bearer {{auth_token}}"
+                }
+              ]
+            },
+            "event": [
+              {
+                "listen": "test",
+                "script": {
+                  "exec": [
+                    "pm.test('Status code is 200', function() {",
+                    "    pm.response.to.have.status(200);",
+                    "});",
+                    "",
+                    "pm.test('Response contains correct patient mappings', function() {",
+                    "    var jsonData = pm.response.json();",
+                    "    pm.expect(jsonData).to.be.an('array');",
+                    "    if (jsonData.length > 0) {",
+                    "        pm.expect(jsonData[0].patient_id).to.eql(parseInt(pm.environment.get('patient_id')));",
+                    "    }",
+                    "});"
+                  ],
+                  "type": "text/javascript"
+                }
+              }
+            ]
+          },
+          {
+            "name": "Get Mappings for Specific Doctor",
+            "request": {
+              "method": "GET",
+              "url": "{{base_url}}/api/mappings/doctor/{{doctor_id}}/",
+              "header": [
+                {
+                  "key": "Authorization",
+                  "value": "Bearer {{auth_token}}"
+                }
+              ]
+            },
+            "event": [
+              {
+                "listen": "test",
+                "script": {
+                  "exec": [
+                    "pm.test('Status code is 200', function() {",
+                    "    pm.response.to.have.status(200);",
+                    "});",
+                    "",
+                    "pm.test('Response contains correct doctor mappings', function() {",
+                    "    var jsonData = pm.response.json();",
+                    "    pm.expect(jsonData).to.be.an('array');",
+                    "    if (jsonData.length > 0) {",
+                    "        pm.expect(jsonData[0].doctor_id).to.eql(parseInt(pm.environment.get('doctor_id')));",
+                    "    }",
+                    "});"
+                  ],
+                  "type": "text/javascript"
+                }
+              }
+            ]
+          },
+          {
+            "name": "Get Specific Mapping",
+            "request": {
+              "method": "GET",
+              "url": "{{base_url}}/api/mappings/{{mapping_id}}/",
+              "header": [
+                {
+                  "key": "Authorization",
+                  "value": "Bearer {{auth_token}}"
+                }
+              ]
+            },
+            "event": [
+              {
+                "listen": "test",
+                "script": {
+                  "exec": [
+                    "pm.test('Status code is 200', function() {",
+                    "    pm.response.to.have.status(200);",
+                    "});",
+                    "",
+                    "pm.test('Mapping data is correct', function() {",
+                    "    var jsonData = pm.response.json();",
+                    "    pm.expect(jsonData.id).to.eql(parseInt(pm.environment.get('mapping_id')));",
+                    "    pm.expect(jsonData.patient_id).to.eql(parseInt(pm.environment.get('patient_id')));",
+                    "    pm.expect(jsonData.doctor_id).to.eql(parseInt(pm.environment.get('doctor_id')));",
+                    "});"
+                  ],
+                  "type": "text/javascript"
+                }
+              }
+            ]
+          },
+          {
+            "name": "Get Non-existent Mapping",
+            "request": {
+              "method": "GET",
+              "url": "{{base_url}}/api/mappings/9999/",
+              "header": [
+                {
+                  "key": "Authorization",
+                  "value": "Bearer {{auth_token}}"
+                }
+              ]
+            },
+            "event": [
+              {
+                "listen": "test",
+                "script": {
+                  "exec": [
+                    "pm.test('Status code is 404', function() {",
+                    "    pm.response.to.have.status(404);",
+                    "});",
+                    "",
+                    "pm.test('Error message about mapping not found', function() {",
+                    "    var jsonData = pm.response.json();",
+                    "    pm.expect(jsonData).to.have.property('detail');",
+                    "});"
+                  ],
+                  "type": "text/javascript"
+                }
+              }
+            ]
+          },
+          {
+            "name": "Update Mapping",
+            "request": {
+              "method": "PUT",
+              "url": "{{base_url}}/api/mappings/{{mapping_id}}/",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                },
+                {
+                  "key": "Authorization",
+                  "value": "Bearer {{auth_token}}"
+                }
+              ],
+              "body": {
+                "mode": "raw",
+                "raw": "{\n    \"patient_id\": {{patient_id}},\n    \"doctor_id\": {{doctor_id}},\n    \"notes\": \"Updated notes for follow-up appointment\"\n}"
+              }
+            },
+            "event": [
+              {
+                "listen": "test",
+                "script": {
+                  "exec": [
+                    "pm.test('Status code is 200', function() {",
+                    "    pm.response.to.have.status(200);",
+                    "});",
+                    "",
+                    "pm.test('Mapping updated with correct data', function() {",
+                    "    var jsonData = pm.response.json();",
+                    "    pm.expect(jsonData.id).to.eql(parseInt(pm.environment.get('mapping_id')));",
+                    "    pm.expect(jsonData.notes).to.eql('Updated notes for follow-up appointment');",
+                    "});"
+                  ],
+                  "type": "text/javascript"
+                }
+              }
+            ]
+          },
+          {
+            "name": "Delete Mapping",
+            "request": {
+              "method": "DELETE",
+              "url": "{{base_url}}/api/mappings/{{mapping_id}}/",
+              "header": [
+                {
+                  "key": "Authorization",
+                  "value": "Bearer {{auth_token}}"
+                }
+              ]
+            },
+            "event": [
+              {
+                "listen": "test",
+                "script": {
+                  "exec": [
+                    "pm.test('Status code is 204', function() {",
+                    "    pm.response.to.have.status(204);",
+                    "});"
+                  ],
+                  "type": "text/javascript"
+                }
+              }
+            ]
+          },
+          {
+            "name": "Delete Non-existent Mapping",
+            "request": {
+              "method": "DELETE",
+              "url": "{{base_url}}/api/mappings/9999/",
+              "header": [
+                {
+                  "key": "Authorization",
+                  "value": "Bearer {{auth_token}}"
+                }
+              ]
+            },
+            "event": [
+              {
+                "listen": "test",
+                "script": {
+                  "exec": [
+                    "pm.test('Status code is 404', function() {",
+                    "    pm.response.to.have.status(404);",
+                    "});",
+                    "",
+                    "pm.test('Error message about mapping not found', function() {",
+                    "    var jsonData = pm.response.json();",
+                    "    pm.expect(jsonData).to.have.property('detail');",
+                    "});"
+                  ],
+                  "type": "text/javascript"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "name": "Security Tests",
+        "item": [
+          {
+            "name": "Access Protected Endpoint Without Authentication",
+            "request": {
+              "method": "GET",
+              "url": "{{base_url}}/api/patients/",
+              "header": []
+            },
+            "event": [
+              {
+                "listen": "test",
+                "script": {
+                  "exec": [
+                    "pm.test('Status code is 401', function() {",
+                    "    pm.response.to.have.status(401);",
+                    "});",
+                    "",
+                    "pm.test('Error message about authentication required', function() {",
+                    "    var jsonData = pm.response.json();",
+                    "    pm.expect(jsonData).to.have.property('detail');",
+                    "});"
+                  ],
+                  "type": "text/javascript"
+                }
+              }
+            ]
+          },
+          {
+            "name": "Access With Invalid Token",
+            "request": {
+              "method": "GET",
+              "url": "{{base_url}}/api/patients/",
+              "header": [
+                {
+                  "key": "Authorization",
+                  "value": "Bearer invalid-token-string"
+                }
+              ]
+            },
+            "event": [
+              {
+                "listen": "test",
+                "script": {
+                  "exec": [
+                    "pm.test('Status code is 401', function() {",
+                    "    pm.response.to.have.status(401);",
+                    "});",
+                    "",
+                    "pm.test('Error message about invalid token', function() {",
+                    "    var jsonData = pm.response.json();",
+                    "    pm.expect(jsonData).to.have.property('detail') || pm.expect(jsonData).to.have.property('code');",
+                    "});"
+                  ],
+                  "type": "text/javascript"
+                }
+              }
+            ]
+          },
+          {
+            "name": "Access With Expired Token",
+            "request": {
+              "method": "GET",
+              "url": "{{base_url}}/api/patients/",
+              "header": [
+                {
+                  "key": "Authorization",
+                  "value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNjE2MjM5MDIyLCJpYXQiOjE2MTYyMzkwMjIsImp0aSI6IjcxMjEzMjM5ZjNmMTQ4NDQ5YTU0Y2ZjNWQ0YjI0YjdmIiwidXNlcl9pZCI6MX0.jkM24GRu1y4SceIyRN3XU3puw52jTXSKMXJE-QD_IpY"
+                }
+              ]
+            },
+            "event": [
+              {
+                "listen": "test",
+                "script": {
+                  "exec": [
+                    "pm.test('Status code is 401', function() {",
+                    "    pm.response.to.have.status(401);",
+                    "});",
+                    "",
+                    "pm.test('Error message about expired token', function() {",
+                    "    var jsonData = pm.response.json();",
+                    "    pm.expect(jsonData).to.have.property('detail') || pm.expect(jsonData).to.have.property('code');",
+                    "});"
+                  ],
+                  "type": "text/javascript"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "name": "Performance Tests",
+        "item": [
+          {
+            "name": "Fetch Large Dataset",
+            "request": {
+              "method": "GET",
+              "url": "{{base_url}}/api/patients/?limit=100",
+              "header": [
+                {
+                  "key": "Authorization",
+                  "value": "Bearer {{auth_token}}"
+                }
+              ]
+            },
+            "event": [
+              {
+                "listen": "test",
+                "script": {
+                  "exec": [
+                    "pm.test('Status code is 200', function() {",
+                    "    pm.response.to.have.status(200);",
+                    "});",
+                    "",
+                    "pm.test('Response time is acceptable', function() {",
+                    "    pm.expect(pm.response.responseTime).to.be.below(1000);",
+                    "});",
+                    "",
+                    "pm.test('Response is properly formatted', function() {",
+                    "    var jsonData = pm.response.json();",
+                    "    pm.expect(jsonData).to.be.an('array');",
+                    "});"
+                  ],
+                  "type": "text/javascript"
+                }
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  }
